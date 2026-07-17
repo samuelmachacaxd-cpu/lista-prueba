@@ -6,6 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class CibertecDemoApplication {
     public static void main(String[] args){
-        SpringBootApplication.run(CibertecDemoApplication.class, args);
+        SpringApplication.run(CibertecDemoApplication.class, args);
     }
 }
