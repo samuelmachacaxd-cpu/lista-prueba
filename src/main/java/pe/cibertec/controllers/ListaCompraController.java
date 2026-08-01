@@ -1,5 +1,9 @@
 package pe.cibertec.controllers;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.cibertec.entites.ItemLista;
@@ -9,6 +13,7 @@ import pe.cibertec.repository.ItemListaRepository;
 import pe.cibertec.repository.ListaCompraRepository;
 import pe.cibertec.repository.UsuarioRepository;
 
+import javax.swing.border.Border;
 import java.util.List;
 
 @RestController
@@ -59,4 +64,39 @@ public class ListaCompraController {
     public List<ListaCompra> historial(@PathVariable Long idUsuario){
         return listaCompraRepository.findByUsuarioId(idUsuario);
     }
+    @GetMapping("/{idLista}")
+    public ResponseEntity<List<ItemLista>> detalle(@PathVariable Long idLista){
+        List<ItemLista> items = itemListaRepository.detalleLista(idLista);
+        if(items.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(items);
+    }
+    @GetMapping("/{idLista}/items")
+    public ResponseEntity<List<ItemLista>> obtenerItemsPorEstado(@PathVariable Long idLista, @RequestParam String estado){
+        List<ItemLista> items = itemListaRepository.buscarPorEstado(idLista, estado);
+        if (items.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(items);
+    }
+
+    @GetMapping("/usuario/{idUsuario}/paginado")
+    public Page<ListaCompra> historialPaginado(@PathVariable Long idUsuario, @RequestParam int page, @RequestParam int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return listaCompraRepository.findByUsuarioPaginado(idUsuario, pageable);
+    }
+    @GetMapping("//usuario/{idUsuario}/paginado/ordenado")
+    public Page<ListaCompra> historiaPaginadoOrdenado( @PathVariable Long idUsuario, @RequestParam int page, @RequestParam int size, @RequestParam(defaultValue = "FechaCreacion")String sortBy,@RequestParam(defaultValue = "desc")String order){
+
+        Sort sort = order.equalsIgnoreCase("asc") ?
+        Sort.by(sortBy).ascending() :
+        Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return listaCompraRepository.findByUsuarioId(idUsuario, pageable);
+
+    }
+
+
 }
